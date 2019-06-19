@@ -30,11 +30,11 @@ ext {
 }
 
 android {
-    compileSdkVersion 24
+    compileSdkVersion 28
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 22
+        targetSdkVersion 26
         versionCode 3
         version VERSION_NAME
         archivesBaseName = "pulsator4droid"
@@ -55,7 +55,7 @@ android {
     libraryVariants.all { variant ->
         println "variant: " + variant.baseName
         variant.outputs.all { output ->
-            if (outputFile != null && outputFileName.endsWith('.aar')) {
+            if (variant.getPackageLibraryProvider().get() != null) {
                 // LibraryVariant object does not have #versionNameSuffix
                 def suffix = variant.baseName == "debug" ? "-SNAPSHOT" : ""
                 outputFileName = "${archivesBaseName}-${version}${suffix}.aar"
@@ -63,10 +63,29 @@ android {
             }
         }
     }
+    // workaround for https://github.com/gradle/gradle/issues/8328
+    // The name is properly built and reported in the script above, but the output file names are simply
+    // pulsator4droid-debug.aar and pulsator4droid-release.aar
+    afterEvaluate {
+        def debugFile = file("$buildDir/outputs/aar/${archivesBaseName}-debug.aar")
+        tasks.named("assembleDebug").configure {
+            doLast {
+                debugFile.renameTo("$buildDir/outputs/aar/${archivesBaseName}-${version}-SNAPSHOT.aar")
+            }
+        }
+        def releaseFile = file("$buildDir/outputs/aar/${archivesBaseName}-release.aar")
+        tasks.named("assembleRelease").configure {
+            doLast {
+                releaseFile.renameTo("$buildDir/outputs/aar/${archivesBaseName}-${version}.aar")
+            }
+        }
+    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.annotation:annotation:1.1.0'
+    implementation 'com.jakewharton.timber:timber:4.7.1'
 }
 
 publishing {

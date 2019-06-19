@@ -23,7 +23,11 @@
 # methods.
 
 -keep public class * {
-    public protected *;
+    public <init>(android.content.Context, android.util.AttributeSet);
+    public <methods>;
+    public static <fields>;
+    protected <methods>;
+    synchronized <methods>;
 }
 
 # Preserve all .class method names.
