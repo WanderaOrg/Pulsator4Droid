@@ -165,5 +165,6 @@ public class RoundedRectanglePulsatorLayout extends PulsatorLayout {
         setWillNotDraw(!enableOnDraw);
         mMaskWidth = width;
         mMaskHeight = height;
+        mMask = null;
     }
 }
